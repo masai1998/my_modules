@@ -9,7 +9,7 @@ def get_subname(path):
     list_sub = []
     list_temp_sub = os.listdir(path)
     for foldername in list_temp_sub:
-        if 'sub-M' in foldername:
+        if 'sub-' in foldername:
             list_sub.append(foldername)
     return list_sub
 
@@ -34,9 +34,9 @@ def exchange_column_trial_type_duration(data_inpath,data_outpath):
         temp.insert(1, temp.pop(temp.index('duration')))
         current_tsv_data = current_tsv_data.loc[:, temp]
         #print(tsv_path)
-        tsv_folder_name = tsv_path[43:50]
+        tsv_folder_name = 'sub-retestM02'
         #print(tsv_folder_name)
-        tsv_name = tsv_path[43:]
+        tsv_name = tsv_path[35:]
         #print(tsv_name)
         save_path = os.path.join(data_outpath , tsv_folder_name , 'ses-01' , 'func' , tsv_name)
         current_tsv_data = pd.DataFrame(current_tsv_data)
@@ -44,6 +44,6 @@ def exchange_column_trial_type_duration(data_inpath,data_outpath):
 
 
 
-data_inpath = r'D:/MotorMapping_source'
-data_outpath = r'D:\MotorMapping_1_change_duration_column'
+data_inpath = r'D:/sub02'
+data_outpath = r'D:\outpath'
 exchange_column_trial_type_duration(data_inpath,data_outpath)
