@@ -343,11 +343,11 @@ class Pipeline(object):
 
     def run_pipeline(self):
         self.run_fmriprep()
-        #self.run_fslreg()
-        #self.run_ciftify()
-        #self.prepare_EVs()
-        #self.prepare_fsf()
-        #self.run_taskglm()
+        self.run_fslreg()
+        self.run_ciftify()
+        self.prepare_EVs()
+        self.prepare_fsf()
+        self.run_taskglm()
 
 
 if __name__ == '__main__':
@@ -359,12 +359,12 @@ if __name__ == '__main__':
     prep_workdir = os.path.join('/nfs/e4/function_guided_resection', 'fmriprep_tmp', 'work-M01-M58-M68')
 
     participants_info = pd.read_csv(os.path.join(data_inpath, 'participants.tsv'), sep='\t')
-#    subject_id = participants_info['participant_id'].values
+    subject_id = participants_info['participant_id'].values
     # run the first 8 participants in this terminal
     # subject_id = subject_id[4+30:4+40]
     # subject_id = subject_id[49:54]
-#    subject_id = ['sub-M01', 'sub-M58', 'sub-M59', 'sub-M60', 'sub-M61', 'sub-M62', 'sub-M63', 'sub-M65', 'sub-M66', 'sub-M67', 'sub-M68']
-    subject_id = ['sub-M01']
+    subject_id = ['sub-M01', 'sub-M58', 'sub-M59', 'sub-M60', 'sub-M61', 'sub-M62', 'sub-M63', 'sub-M65', 'sub-M66', 'sub-M67', 'sub-M68']
+
 
     pip_cls = Pipeline(data_inpath, data_outpath, prep_workdir, ciftify_workdir, fsf_dir, subject_id)
     pip_cls.run_pipeline()
