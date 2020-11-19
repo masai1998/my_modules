@@ -8,12 +8,14 @@
 # Input: task_name.csv, results_path.csv, z threshold value, participants_number
 # Output: "dscalar.nii" format file for each task
 
-# import modules
+
 
 import os
 import numpy as np
 import pandas as pd
 import nibabel as nib
+
+
 
 # function: probabilistic map pipeline
 

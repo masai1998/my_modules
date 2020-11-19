@@ -7,6 +7,8 @@
 import generate_results_list
 import generate_probabilistic_map
 
+
+
 if __name__ == '__main__':
     cifti_path = '/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify'
     subject_list_path = '/nfs/s2/userhome/masai/workingdir/subject_list.csv'
