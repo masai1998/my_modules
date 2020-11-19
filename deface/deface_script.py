@@ -34,7 +34,7 @@ for subj in subject_list:
 #print(image_path_list)
 
 for path in image_path_list:
-    pydeface_command = 'pydeface' + path
+    pydeface_command = 'pydeface ' + path
     try:
         subprocess.check_call(pydeface_command, shell=True)
     except subprocess.CalledProcessError:
