@@ -68,6 +68,38 @@ class task_analysis(object):
         regname = 'NONE'
         parcellation = 'NONE'
         parcefile = 'NONE'
+        for subject in self.subject_list:
+            with open(os.path.join(self.data_inpath, subject, 'ses-01', 'tmp', 'run_info', 'motor.rlf'), 'r') as f:
+                runs_id = f.read().splitlines()
+            lvl1tasks_list = []
+            for run_id in runs_id:
+                lvl1tasks_list.append('ses-01_task-motor_run-' + run_id)
+            level1_tasks = '@'.join(lvl1tasks_list)
+            level1_fsfs = level1_tasks
+            level2_tasks = 'ses-01_task-motor'
+            level2_fsf = level2_tasks
+            taskglm_command = ' '.join(['TaskfMRIAnalysis.sh',
+                                        '--path=' + self.ciftify_workdir,
+                                        '--subject=' + subject,
+                                        '--lvl1tasks=' + level1_tasks,
+                                        '--lvl1fsfs=' + level1_fsfs,
+                                        '--lvl2task=' + level2_tasks,
+                                        '--lvl2fsf=' + level2_fsf,
+                                        '--lowresmesh=' + lowres,
+                                        '--grayordinatesres=' + grayres,
+                                        '--origsmoothingFWHM=' + origFWHM,
+                                        '--confound=' + confound,
+                                        '--finalsmoothingFWHM=' + finalFWHM,
+                                        '--temporalfilter=' + tempfilter,
+                                        '--vba=' + vba,
+                                        '--regname=' + regname,
+                                        '--parcellation=' + parcellation,
+                                        '--parcellationfile=' + parcefile])
+            # self.taskglm_command = taskglm_command
+            try:
+                subprocess.check_call(taskglm_command, shell=True)
+            except subprocess.CalledProcessError:
+                raise Exception('TASKGLM: Error happened in subject {}'.format(subject))
 
 
 
