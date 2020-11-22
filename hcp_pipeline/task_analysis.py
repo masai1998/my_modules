@@ -26,7 +26,7 @@ class task_analysis(object):
             results_dir = os.path.join(self.ciftify_dir, subject_id, 'MNINonLinear', 'Results')
             with open(os.path.join(self.raw_data_dir, subject_id, 'ses-01', 'tmp', 'run_info', 'motor.rlf'), 'r') as f:
                 runs_id = f.read().splitlines()
-            level2_fsf_file_outdir = os.path.join(results_dir, 'ses-01_task-motor_level2')
+            level2_fsf_file_outdir = os.path.join(results_dir, 'ses-01_task-motor')
             cpfsf2_command = ' '.join(['cp', level2_fsf_file, os.path.join(level2_fsf_file_outdir, 'ses-01_task-motor_hp200_s4_level2.fsf')])
             subprocess.check_call(cpfsf2_command, shell=True)
             self.customize_fsf2(os.path.join(level2_fsf_file_outdir, 'ses-01_task-motor_hp200_s4_level2.fsf'), runs_id)
@@ -69,7 +69,7 @@ class task_analysis(object):
         parcellation = 'NONE'
         parcefile = 'NONE'
         for subject in self.subject_list:
-            with open(os.path.join(self.data_inpath, subject, 'ses-01', 'tmp', 'run_info', 'motor.rlf'), 'r') as f:
+            with open(os.path.join(self.raw_data_dir, subject, 'ses-01', 'tmp', 'run_info', 'motor.rlf'), 'r') as f:
                 runs_id = f.read().splitlines()
             lvl1tasks_list = []
             for run_id in runs_id:
@@ -78,8 +78,8 @@ class task_analysis(object):
             level1_fsfs = level1_tasks
             level2_tasks = 'ses-01_task-motor'
             level2_fsf = level2_tasks
-            taskglm_command = ' '.join(['TaskfMRIAnalysis.sh',
-                                        '--path=' + self.ciftify_workdir,
+            analysis_command = ' '.join(['${HCPPIPEDIR}/TaskfMRIAnalysis/TaskfMRIAnalysis.sh',
+                                        '--path=' + self.ciftify_dir,
                                         '--subject=' + subject,
                                         '--lvl1tasks=' + level1_tasks,
                                         '--lvl1fsfs=' + level1_fsfs,
@@ -95,22 +95,18 @@ class task_analysis(object):
                                         '--regname=' + regname,
                                         '--parcellation=' + parcellation,
                                         '--parcellationfile=' + parcefile])
-            # self.taskglm_command = taskglm_command
-            try:
-                subprocess.check_call(taskglm_command, shell=True)
-            except subprocess.CalledProcessError:
-                raise Exception('TASKGLM: Error happened in subject {}'.format(subject))
-
-
-
+            subprocess.check_call(analysis_command, shell=True)
 
 
 
 if __name__ == '__main__':
     raw_data_dir = '/nfs/e4/function_guided_resection/MotorMapping'
-    ciftify_dir = '/nfs/e2/workingshop/masai/test/hcp_pipeline/ciftify/'
+    ciftify_dir = '/nfs/e2/workingshop/masai/test/hcp_pipeline/ciftify'
     subject_list = ['sub-M24']
-    fsf_template_dir = '/nfs/e2/workingshop/masai/fsf_template/'
+    fsf_template_dir = '/nfs/e2/workingshop/masai/fsf_template'
 
     task_analysis = task_analysis(raw_data_dir, ciftify_dir, subject_list, fsf_template_dir)
     task_analysis.prepare_fsf()
+    task_analysis.analysis()
+
+
