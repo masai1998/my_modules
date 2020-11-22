@@ -1,7 +1,0 @@
-"""
-    fmriprep.py
-"""
-
-
-
-import subprocess

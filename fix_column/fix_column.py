@@ -47,7 +47,7 @@ def exchange_column_trial_type_duration(data_inpath,data_outpath):
         current_tsv_data.to_csv(save_path , sep='\t' , index=False)
 
 
-
-data_inpath = r'D:/sub02'
-data_outpath = r'D:\outpath'
-exchange_column_trial_type_duration(data_inpath,data_outpath)
+if __name__ == '__main__':
+    data_inpath = r'D:/sub02'
+    data_outpath = r'D:\outpath'
+    exchange_column_trial_type_duration(data_inpath,data_outpath)
