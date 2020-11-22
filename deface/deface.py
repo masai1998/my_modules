@@ -34,3 +34,8 @@ class deface(object):
         for image in anat_image_list:
             pydeface_command = 'pydeface' + image
             subprocess.check_call(pydeface_command, shell=True)
+
+if __name__ == '__main__':
+    rawdata_dir = ''
+    deface = deface(rawdata_dir)
+    deface.run_deface()
