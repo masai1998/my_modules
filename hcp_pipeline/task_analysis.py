@@ -99,7 +99,7 @@ class task_analysis(object):
 
 if __name__ == '__main__':
     raw_data_dir = '/nfs/e4/function_guided_resection/MotorMapping'
-    ciftify_dir = '/nfs/e2/workingshop/masai/test/hcp_pipeline/ciftify'
+    ciftify_dir = '/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify'
     subject_list = ['sub-M24']
     fsf_template_dir = '/nfs/e2/workingshop/masai/fsf_template'
 
