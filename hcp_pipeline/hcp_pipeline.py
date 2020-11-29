@@ -151,6 +151,29 @@ class hcp_pipeline(object):
 
         # Prepare EV files
 
+        for subject in self.subject_list:
+            session_list = os.listdir(os.path.join(self.raw_data_dir, subject))
+            for session in session_list:
+                with open(os.path.join(self.raw_data_dir, subject, session, 'tmp', 'run_info', self.task + '.rlf'), 'r') as f:
+                    runs_id = f.read().splitlines()
+                for run_id in runs_id:
+                    ev_file = os.path.join(self.raw_data_dir, subject, session, 'func', subject + '_' + session + '_' + 'task-' + self.task + '_' + 'run-' + run_id + '_events.tsv')
+                    ev_cond = pd.read_csv(ev_file, sep='\t')
+
+                    labeldict = {1: 'toe', 2: 'ankle', 3: 'leftleg', 4: 'rightleg', 5: 'forearm', 6: 'upperarm', 7: 'wrist', 8: 'finger', 9: 'eye', 10: 'jaw', 11: 'lip', 12: 'tongue'}
+                    assert (np.all(np.unique(ev_cond['trial_type']) == np.arange(len(labeldict) + 1))), "Conditions are not complete."
+                    for lbl in labeldict.keys():
+                        ev_cond_tmp = ev_cond[ev_cond['trial_type'] == lbl]
+                        ev_cond_decomp = np.zeros((3, len(ev_cond_tmp)))
+                        ev_cond_decomp[0, :] = np.array(ev_cond_tmp['onset'])
+                        ev_cond_decomp[1, :] = np.array(ev_cond_tmp['duration'])
+                        ev_cond_decomp[2, :] = np.ones(len(ev_cond_tmp))
+                        ev_cond_decomp = ev_cond_decomp.T
+                        outpath = os.path.join(self.ciftify_workdir, subject, 'MNINonLinear', 'Results', session + '_' + 'task-' + self.task + '_' + 'run-' + run_id, 'EVs')
+                        if not os.path.isdir(outpath):
+                            subprocess.call('mkdir ' + outpath, shell=True)
+                        np.savetxt(os.path.join(outpath, labeldict[lbl] + '.txt'), ev_cond_decomp, fmt='%-6.1f', delimiter='\t', newline='\n')
+
         # Prepare fsf files of first and second level
 
         fsf1_template = os.path.join(self.fsf_template_dir, 'level1.fsf')
@@ -159,45 +182,105 @@ class hcp_pipeline(object):
             results_dir = os.path.join(self.ciftify_workdir, subject, 'MNINonLinear', 'Results')
             session_list = os.listdir(os.path.join(self.raw_data_dir, subject))
             for session in session_list:
-
-                # copy the second level fsf file to results directory
-
-                fsf2_outdir = os.path.join(results_dir, session + '_' + 'task-' + self.task)
-                fsf2_filename = os.path.join(fsf2_outdir, session + '_' + 'task-' + self.task + '_hp200_s4_level2.fsf')
-                if not os.path.exists(fsf2_outdir):
-                    os.makedirs(fsf2_outdir)
-                cp_fsf2_command = ' '.join(['cp', fsf2_template, fsf2_filename])
-                try:
-                    subprocess.call(cp_fsf2_command, shell=True)
-                except subprocess.CalledProcessError:
-                    raise Exception('MASKBOLD: Error happened in {}'.format(subject))
-
-                # modify the second level fsf file
-
                 with open(os.path.join(self.raw_data_dir, subject, session, 'tmp', 'run_info', self.task + '.rlf'), 'r') as f:
                     runs_id = f.read().splitlines()
                 run_list = ['run-' + run for run in runs_id]
-                modify_times = len(run_list)
                 for run in run_list:
 
+                    # Copy the first level fsf files to results directory
+
+                    fsf1_outdir = os.path.join(results_dir, session + '_' + 'task-' + self.task + '_' + run)
+                    fsf1_filepath = os.path.join(fsf1_outdir,
+                                                 session + '_' + 'task-' + self.task + '_' + run + '_hp200_s4_level1.fsf')
+                    if not os.path.exists(fsf1_outdir):
+                        os.makedirs(fsf1_outdir)
+                    cp_fsf1_command = ' '.join(['cp', fsf1_template, fsf1_filepath])
+                    try:
+                        subprocess.call(cp_fsf1_command, shell=True)
+                    except subprocess.CalledProcessError:
+                        raise Exception('CPFSF1: Error happened in {}'.format(subject))
+
+                    # Modify first level fsf files
+
+                    sedfsf1_command = " ".join(['sed', '-i', '\'s#{0}#{1}#g\''.format('run-a', run), fsf1_filepath])
+                    try:
+                        subprocess.call(sedfsf1_command, shell=True)
+                    except subprocess.CalledProcessError:
+                        raise Exception('SEDFSF1: Error happened in {}'.format(subject))
 
 
+                # Copy the second level fsf file to results directory
 
+                fsf2_outdir = os.path.join(results_dir, session + '_' + 'task-' + self.task)
+                fsf2_filepath = os.path.join(fsf2_outdir, session + '_' + 'task-' + self.task + '_hp200_s4_level2.fsf')
+                if not os.path.exists(fsf2_outdir):
+                    os.makedirs(fsf2_outdir)
+                cp_fsf2_command = ' '.join(['cp', fsf2_template, fsf2_filepath])
+                try:
+                    subprocess.call(cp_fsf2_command, shell=True)
+                except subprocess.CalledProcessError:
+                    raise Exception('CPFSF2: Error happened in {}'.format(subject))
 
+                # Modify the second level fsf file
 
-                for run_id in runs_id:
-                    fsflevel1_outdir = os.path.join(result_dir,
-                                                    ses_id + '_' + 'task-' + self.task + '_' + 'run-' + run_id)
-                    if not os.path.isdir(fsflevel1_outdir):
-                        os.makedirs(fsflevel1_outdir)
-                    cpfsf1_command = ' '.join(['cp', fsflevel1_indir, os.path.join(fsflevel1_outdir,
-                                                                                   ses_id + '_' + 'task-' + self.task + '_' + 'run-' + run_id + '_hp200_s4_level1.fsf')])
-                    subprocess.call(cpfsf1_command, shell=True)
-                    self._modify_fsf1(os.path.join(fsflevel1_outdir,
-                                                   ses_id + '_' + 'task-' + self.task + '_' + 'run-' + run_id + '_hp200_s4_level1.fsf'),
-                                      'run-' + run_id)
+                letter_list = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+                for run in run_list:
+                    letter_id = 0
+                    sedfsf2_command = " ".join(['sed', '-i', '\'s#{0}#{1}#g\''.format('run-' + letter_list[letter_id], run), fsf2_filepath])
+                    try:
+                        subprocess.call(sedfsf2_command, shell=True)
+                    except subprocess.CalledProcessError:
+                        raise Exception('SEDFSF2: Error happened in {}'.format(subject))
+                    letter_id += 1
 
         # Analysis based on general linear model
+
+        lowres = '32'
+        grayres = '2'
+        origFWHM = '2'
+        confound = 'NONE'
+        finalFWHM = '4'
+        tempfilter = '200'
+        vba = 'NO'
+        regname = 'NONE'
+        parcellation = 'NONE'
+        parcefile = 'NONE'
+        for subject in self.subject_list:
+            session_list = os.listdir(os.path.join(self.raw_data_dir, subject))
+            level2_task_list = []
+            for session in session_list:
+                level2_task_list.append(session + '_' + 'task-' + self.task)
+                with open(os.path.join(self.raw_data_dir, subject, session, 'tmp', 'run_info', self.task + '.rlf'), 'r') as f:
+                    runs_list = f.read().splitlines()
+                level1_tasks_list = []
+                for run in runs_list:
+                    level1_tasks_list.append(session + '_' + 'task-' + self.task + '_' + 'run-' + run)
+                level1_tasks = '@'.join(level1_tasks_list)
+                level1_fsfs = level1_tasks
+            level2_task = '@'.join(level2_task_list)
+            level2_fsf = level2_task
+
+            analysis_command = ' '.join(['${HCPPIPEDIR}/TaskfMRIAnalysis/TaskfMRIAnalysis.sh',
+                                        '--path=' + self.ciftify_workdir,
+                                        '--subject=' + subject,
+                                        '--lvl1tasks=' + level1_tasks,
+                                        '--lvl1fsfs=' + level1_fsfs,
+                                        '--lvl2task=' + level2_task,
+                                        '--lvl2fsf=' + level2_fsf,
+                                        '--lowresmesh=' + lowres,
+                                        '--grayordinatesres=' + grayres,
+                                        '--origsmoothingFWHM=' + origFWHM,
+                                        '--confound=' + confound,
+                                        '--finalsmoothingFWHM=' + finalFWHM,
+                                        '--temporalfilter=' + tempfilter,
+                                        '--vba=' + vba,
+                                        '--regname=' + regname,
+                                        '--parcellation=' + parcellation,
+                                        '--parcellationfile=' + parcefile])
+            try:
+                subprocess.check_call(analysis_command, shell=True)
+            except subprocess.CalledProcessError:
+                raise Exception('TASKANALYSIS: Error happened in {}'.format(subject))
 
 
 
