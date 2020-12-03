@@ -51,7 +51,7 @@ class probabilistic_map(object):
                 print('Reading session {} ...'.format(session))
                 results_dir = os.path.join(self.ciftify_data_dir, subject, 'MNINonLinear', 'Results',
                                            session + '_' + 'task-' + self.task,
-                                           session + '_' + 'task-' + self.task + '_' + 'hp200' + '_' + 's4' + 'level2' + '.feat')
+                                           session + '_' + 'task-' + self.task + '_' + 'hp200' + '_' + 's4' + '_' + 'level2' + '.feat')
                 for contrast_name in contrast_dict.keys():
                     print('Reading contrast {} ...'.format(contrast_name))
                     zstat_file = os.path.join(results_dir,
@@ -70,7 +70,7 @@ class probabilistic_map(object):
 
         for contrast_name in contrast_dict.keys():
             print('Saving probabilistic map of {} ...'.format(contrast_name))
-            save_path = os.path.join(probabilistic_map_dir, contrast_name, '.dscalar.nii')
+            save_path = os.path.join(probabilistic_map_dir, contrast_name + '.dscalar.nii')
             image = nib.Cifti2Image(contrast_dict[contrast_name], self.header)
             nib.cifti2.save(image, save_path)
 
