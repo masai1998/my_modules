@@ -35,7 +35,6 @@ def clear(ciftify_folder, subject_id, run_id):
 
 if __name__ == '__main__':
     ciftify_folder = '/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify/'
-    #ciftify_folder = '/nfs/e2/workingshop/masai/test/hcp_pipeline/ciftify/'
     subject_list = []
     run_list = []
 
