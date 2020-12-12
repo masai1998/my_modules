@@ -82,9 +82,9 @@ if __name__ == '__main__':
 
     raw_data_dir = '/nfs/e4/function_guided_resection/MotorMapping/'
     ciftify_data_dir = '/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify/'
-    contrast_list = ['Head', 'UpperLimbs', 'LowerLimbs']
+    contrast_list = ['Head', 'UpperLimbs', 'LowerLimbs', 'Toe-Ankle', 'Ankle-Toe', 'LeftLeg-Toe&Ankle', 'Toe&Ankle-LeftLeg', 'RightLeg-Toe&Ankle', 'Toe&Ankle-RightLeg', 'Finger-Wrist', 'Wrist-Finger', 'Forearm-Upperarm', 'Upperarm-Forearm', 'Finger&Wrist-Forearm&Upperarm', 'Forearm&Upperarm-Finger&Wrist', 'Jaw-Lip&Tongue&Eye', 'Lip-Jaw&Tongue&Eye', 'Tongue-Jaw&Lip&Eye']
     task = 'motor'
-    z_threshold = 2.3
+    z_threshold = 4.7534
     header = nib.load('/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify/sub-M24/MNINonLinear/Results/ses-01_task-motor/ses-01_task-motor_hp200_s4_level2.feat/sub-M24_ses-01_task-motor_level2_zstat_Head_hp200_s4.dscalar.nii').header
 
     probabilistic_map = probabilistic_map(raw_data_dir, ciftify_data_dir, contrast_list, task, z_threshold, header)
