@@ -28,22 +28,6 @@ def data_analysis(data_file):
     result = model.fit()
     print(result.summary())
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
     data_file = 'D:\Group_data_analysisi.xlsx'
     data_analysis(data_file)
