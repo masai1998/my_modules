@@ -11,7 +11,7 @@ import statsmodels.api as sm
 
 def data_analysis(data_file):
     # read data
-    data = pd.read_excel(data_file, usecols=[0, 2, 3, 4])
+    data = pd.read_csv(data_file, usecols=[0, 2, 3, 4])
     data.columns = ['group_id', 'y', 'x1', 'x2']
     # prepare x and y
     x = sm.add_constant(data.iloc[:, 2:])
@@ -22,7 +22,7 @@ def data_analysis(data_file):
     print(result.summary())
 
 if __name__ == '__main__':
-    data_file = 'D:\Group_data_analysisi.xlsx'
+    data_file = '/Users/masai/Desktop/group_data.csv'
     data_analysis(data_file)
 
 
