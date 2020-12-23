@@ -23,11 +23,11 @@ class probabilistic_map(object):
         # z list
 
         for z_threshold in self.z_threshold_list:
-            print('Computing z value is' + str(z_threshold))
+            print('Computing z value is {}'.format(str(z_threshold)))
 
             # Make the directory of probabilistic maps
 
-            probabilistic_map_dir = os.path.join(self.ciftify_data_dir, '..', 'probabilistic_map')
+            probabilistic_map_dir = os.path.join(self.ciftify_data_dir, '..', 'probabilistic_map_test')
             if not os.path.exists(probabilistic_map_dir):
                 os.makedirs(probabilistic_map_dir)
 
@@ -87,11 +87,10 @@ if __name__ == '__main__':
 
     raw_data_dir = '/nfs/e4/function_guided_resection/MotorMapping/'
     ciftify_data_dir = '/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify/'
-    # contrast_list = ['Head', 'UpperLimbs', 'LowerLimbs']
-    contrast_list = ['LowerLimbs']
+    contrast_list = ['Jaw-Lip&Tongue']
     task = 'motor'
     z_threshold_list = [3.0902, 3.719, 4.2649, 4.7534, 5.1993, 5.6120, 5.9978, 6.3613]
-    header = nib.load('/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify/sub-M04/MNINonLinear/Results/ses-01_task-motor/ses-01_task-motor_hp200_s4_level2.feat/sub-M24_ses-01_task-motor_level2_zstat_Head_hp200_s4.dscalar.nii').header
+    header = nib.load('/nfs/e4/function_guided_resection/MotorMapping/derivatives/surface/ciftify/sub-M04/MNINonLinear/Results/ses-01_task-motor/ses-01_task-motor_hp200_s4_level2.feat/sub-M04_ses-01_task-motor_level2_zstat_Head_hp200_s4.dscalar.nii').header
 
 
     probabilistic_map = probabilistic_map(raw_data_dir, ciftify_data_dir, contrast_list, task, z_threshold_list, header)
