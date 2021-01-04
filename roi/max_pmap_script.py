@@ -25,12 +25,9 @@ Upperlimbs_data = np.where(Upperlimbs_data > 0.25, Upperlimbs_data, 0).reshape((
 Lowerlimbs_data = np.where(Lowerlimbs_data > 0.25, Lowerlimbs_data, 0).reshape((-1,1))
 pmap_matrix = np.c_[first_column, Head_data, Upperlimbs_data, Lowerlimbs_data]
 
-max_pmap_data = np.argmax(pmap_matrix, axis = 1)
+max_pmap_data = np.argmax(pmap_matrix, axis = 1).reshape((1,-1))
 
-
-
-
-
-np.set_printoptions(threshold=np.inf)
-print(max_pmap_data)
-print(max_pmap_data.shape)
+header = nib.load(Head_file).header
+save_path = 'pmap.dscalar.nii'
+image = nib.Cifti2Image(max_pmap_data, header)
+nib.cifti2.save(image, save_path)
