@@ -5,7 +5,7 @@
 import os, glob, string, tqdm, logging
 import pandas as pd
 from os.path import join as pjoin
-from pipeline.utils.utils import bcolors, check_path, session_input_dict, session_task_dict, task_feature_dict, runcmd, heucreation, log_config
+from pipeline.utils.utils import bcolors, check_path, session_input_dict, session_task_dict, task_feature_dict, runcmd, heucreation, log_config, dict2json
 
 def data2bids(args):
 
@@ -19,26 +19,35 @@ def data2bids(args):
     # generate session:input - determine
     # generate session:task
     # generate task:feature
-    scaninfo_raw = pd.read_excel(args.file)
+    scaninfo_raw = pd.read_excel(args.scaninfo_file)
     # pandas:https://www.cnblogs.com/ech2o/p/11831488.html
 
     #
     if args.subject or args.session:
         scaninfo = scaninfo_raw
         if args.subject:
+            logging.info('DATA2BIDS: Selected subject is {}'.format(args.subject))
             scaninfo = scaninfo[scaninfo['sub'].isin(args.subject)]
             scaninfo.reset_index(drop=True)
         if args.session:
+            logging.info('DATA2BIDS: selected session is {}'.format(args.session))
             scaninfo = scaninfo[scaninfo['ses'].isin(args.session)]
             scaninfo.reset_index(drop=True)
         if args.quality_filter != 'all':
+            logging.info('DATA2BIDS: quality filter is {}'.format(args.quality_filter))
+            logging.info('DATA2BIDS: filtered scaninfo is in {}'.format(pjoin(args.output_dir, 'scaninfo_filtered.xlsx')))
             scaninfo = scaninfo[scaninfo['quality'] == args.quality_filter]
             scaninfo.reset_index(drop=True)
+            scaninfo.to_excel(pjoin(args.output_dir, 'scaninfo_filtered.xlsx'))
     else:
         if args.quality_filter != 'all':
+            logging.info('DATA2BIDS: quality filter is {}'.format(args.quality_filter))
+            logging.info('DATA2BIDS: filtered scaninfo is stored in {}'.format(pjoin(args.output_dir, 'scaninfo_filtered.xlsx')))
             scaninfo = scaninfo_raw[scaninfo_raw['quality'] == args.quality_filter]
             scaninfo.reset_index(drop=True)
+            scaninfo.to_excel(pjoin(args.output_dir, 'scaninfo_filtered.xlsx'))
         else:
+            logging.info('DATA2BIDS: process all parts in {}'.format(args.scaninfo_file))
             scaninfo = scaninfo_raw
 
     # determine input of each session -- {sub-*/ses-* : *.tar.gz}
@@ -46,6 +55,9 @@ def data2bids(args):
     print("[news] Find {:d} session(s) waiting for processing..".format(len(session_input)))
     for key, value in session_input.items():
         print(bcolors.BOLD + "    {:s} ".format(key) + bcolors.ENDC + "from: {:s}".format(value))
+    logging.info('DATA2BIDS: session-input mapping is stored in {}'.format(pjoin(args.output_dir, 'session-input.json')))
+    dict2json(session_input, pjoin(args.output_dir, 'session-input.json'))
+
 
     # detemine session-contained tasks --
     session_task = session_task_dict(scaninfo)
@@ -62,6 +74,8 @@ def data2bids(args):
     print("[news] Found {} kinds of session:".format(len(heu_session_task)))
     for key, value in heu_session_task.items():
         print(bcolors.BOLD + "    {:s} ".format(key) + bcolors.ENDC + "contains: {}".format(value))
+    logging.info('DATA2BIDS: session-task mapping is stored in {}'.format(pjoin(args.output_dir, 'session-task.json')))
+    dict2json(session_task, pjoin(args.output_dir, 'session-task.json'))
 
     # determine task feature -- task : [protocolname dim]
     task_feature = task_feature_dict(scaninfo)
@@ -70,6 +84,8 @@ def data2bids(args):
         print(bcolors.BOLD + "    {:s} : ".format(key) + bcolors.ENDC + "protocolname = " + \
               bcolors.BOLD + "{0[0]},".format(value) + bcolors.ENDC + " dim = " + \
               bcolors.BOLD + "{0[1]} ".format(value) + bcolors.ENDC)
+    logging.info('DATA2BIDS: task-feature mapping is stored in {}'.format(pjoin(args.output_dir, 'task-feature.json')))
+    dict2json(task_feature, pjoin(args.output_dir, 'task-feature.json'))
 
     # step 3 Unpack
     print(bcolors.BOLD_NODE + "[Node] Unpacking..." + bcolors.ENDC)
@@ -97,17 +113,17 @@ def data2bids(args):
     print(bcolors.BOLD_NODE + "[Node] BIDS converting..." + bcolors.ENDC)
     # session_input will be used
     for _key, _value in tqdm(session_input.items()):
-        dcom_files = pjoin(args.temp_dir, _value).replace('.tar.gz', '/*.IMA')
+        dicom_files = pjoin(args.temp_dir, _value).replace('.tar.gz', '/*.IMA')
         subID, sesID = _key.split('/')[0].replace('sub-', ''), _key.split('/')[1].replace('ses-', '')
 
         if not args.skip_feature_validation:
             # feature validation
             if args.overwrite:
                 cmd = "heudiconv --files {:s} -o {:s} -f convertall -s {:s} -ss {:s} -c none --overwrite" \
-                    .format(dcom_files, args.output_dir, subID, sesID)
+                    .format(dicom_files, args.output_dir, subID, sesID)
             else:
                 cmd = "heudiconv --files {:s} -o {:s} -f convertall -s {:s} -ss {:s} -c none" \
-                    .format(dcom_files, args.output_dir, subID, sesID)
+                    .format(dicom_files, args.output_dir, subID, sesID)
             print("[news] inspecting task feature in dicominfo.tsv")
             print("[news] command:" + bcolors.BOLD + " {}".format(cmd) + bcolors.ENDC)
             if not args.preview:
@@ -149,10 +165,10 @@ def data2bids(args):
         heuristicpy = pjoin(args.output_dir, 'code', sesID.strip(string.digits), 'heuristic.py')
         if args.overwrite:
             cmd = "heudiconv --files {:s} -o {:s} -f {:s} -s {:s} -ss {:s} -c dcm2niix -b --overwrite" \
-                .format(dcom_files, args.output_dir, heuristicpy, subID, sesID)
+                .format(dicom_files, args.output_dir, heuristicpy, subID, sesID)
         else:
             cmd = "heudiconv --files {:s} -o {:s} -f {:s} -s {:s} -ss {:s} -c dcm2niix -b" \
-                .format(dcom_files, args.output_dir, heuristicpy, subID, sesID)
+                .format(dicom_files, args.output_dir, heuristicpy, subID, sesID)
         print("[news] Processing sub-{:s}/ses-{:s}".format(subID, sesID))
         print("    command: " + bcolors.BOLD + "{:s}".format(cmd) + bcolors.ENDC)
         if not args.preview:
