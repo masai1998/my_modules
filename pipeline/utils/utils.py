@@ -4,7 +4,7 @@
 
 """
 
-import os, glob, argparse, string
+import os, glob, argparse, string, json
 import subprocess
 import pandas as pd
 import numpy as np
@@ -145,7 +145,7 @@ def session_input_dict(scaninfo):
     Generate a dict show where the data of each session from.
     parameter:
     ----------
-    scaninfo锛?pd.DataFrame
+    scaninfo:pd.DataFrame
 
     return:
     ---------
@@ -215,3 +215,10 @@ def task_feature_dict(scaninfo):
 def log_config(log_name):
     logging.basicConfig(format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s',
                         level=logging.INFO, filename=log_name, filemode='w')
+
+def dict2json(dict, path):
+    dict = json.dumps(dict)
+    with open(path, "w+", encoding='utf-8') as f:
+        f.write(dict + ",\n")
+
+
