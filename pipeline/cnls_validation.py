@@ -59,8 +59,8 @@ def cnls_validation(args):
 
     # Check if the orig_dir is empty
     if not os.listdir(orig_dir):
-        logging.critical('orig_dir in {} is empty!'.format(args.orig))
-        raise AssertionError("[Critical] orig_dir in {} is empty!".format(args.orig) + bcolors.ENDC)
+        logging.critical('orig_dir in {} is empty!'.format(orig_dir))
+        raise AssertionError("[Critical] orig_dir in {} is empty!".format(orig_dir) + bcolors.ENDC)
 
         # if check_path(bold_dir, mkdir) == 0:
     #     logging.warning('{} is just created'.format(bold_dir))
