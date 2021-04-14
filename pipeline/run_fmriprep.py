@@ -1,13 +1,5 @@
 """
-fmriprep-docker
-/nfs/e4/function_guided_resection/MotorMapping
-/nfs/e4/function_guided_resection/MotorMapping/derivatives/fmriprep_test
-participant
--w /nfs/e4/function_guided_resection/fmriprep_tmp_ms
---participant_label M01
---output-space T1w
---skip-bids-validation
---fs-license-file /usr/local/neurosoft/freesurfer/license.txt
+    fMRIPrep
 """
 
 import subprocess, argparse, os
