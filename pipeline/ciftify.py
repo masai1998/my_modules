@@ -1,14 +1,5 @@
 """
     ciftify recon-all & subject-fmri
-
-    recon all
-
-    ciftify_recon_all
-    --fs-subjects-dir /nfs/e4/function_guided_resection/MotorMap/data/bold/derivatives/freesurfer
-    --ciftify-work-dir /nfs/e4/function_guided_resection/MotorMap/data/bold/derivatives/ciftify
-    --resample-to-T1w32k
-    --surf-reg MSMSulc
-    sub-01
 """
 
 import subprocess
